@@ -1,0 +1,13 @@
+name: flutter_blue_plus
+description: Local BLE library fixed for compatibility
+version: 4.0.1
+
+environment:
+  sdk: '>=2.17.0 <4.0.0'
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.lib.flutter_blue_plus
+        pluginClass: FlutterBluePlusPlugin
