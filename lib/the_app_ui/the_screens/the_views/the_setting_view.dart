@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_graduation_project/the_app_ui/the_screens/the_pairing_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   static const String theRouteName = 'settings';
@@ -19,7 +20,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings' , style: TextStyle(color: Colors.white),),
+        title: Text('Settings', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
       ),
       body: SingleChildScrollView(
@@ -48,7 +49,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SizedBox(height: screenHeight * 0.02),
               ElevatedButton(
                 onPressed: () {
-                  // Todo : Handle Reconnect button press
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PairingScreen(),
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
@@ -82,12 +88,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SizedBox(height: screenHeight * 0.02),
               DropdownButtonFormField<String>(
                 value: selectedLanguage,
-                items: ['English', 'Arabic',]
-                    .map((language) => DropdownMenuItem(
-                  value: language,
-                  child: Text(language),
-                ))
-                    .toList(),
+                items:
+                    ['English', 'Arabic']
+                        .map(
+                          (language) => DropdownMenuItem(
+                            value: language,
+                            child: Text(language),
+                          ),
+                        )
+                        .toList(),
                 onChanged: (value) {
                   setState(() {
                     selectedLanguage = value!;
