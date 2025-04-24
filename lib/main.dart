@@ -3,7 +3,7 @@ import 'package:the_graduation_project/the_app_ui/the_screens/the_auth_screens/t
 import 'package:the_graduation_project/the_app_ui/the_screens/the_auth_screens/the_login_screen.dart';
 import 'package:the_graduation_project/the_app_ui/the_screens/the_auth_screens/the_signin_screen.dart';
 import 'package:the_graduation_project/the_app_ui/the_screens/the_home_screen.dart';
-// Simport 'package:the_graduation_project/the_app_ui/the_screens/the_pairing_screen.dart';
+import 'package:the_graduation_project/the_app_ui/the_screens/the_pairing_screen.dart';
 import 'package:the_graduation_project/the_app_ui/the_screens/the_splash_screen.dart';
 import 'package:the_graduation_project/the_app_ui/the_screens/the_views/the_geasture_costimize_view.dart';
 import 'package:the_graduation_project/the_app_ui/the_screens/the_views/the_help_view.dart';
@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
         HelpScreen.theRouteName: (context) => HelpScreen(),
         SettingsScreen.theRouteName: (context) => SettingsScreen(),
         UserAccountScreen.theRouteName: (context) => UserAccountScreen(),
-        // PairingScreen.theRouteName: (context) => PairingScreen(),
+        PairingScreen.theRouteName: (context) => PairingScreen(),
       },
     );
   }
