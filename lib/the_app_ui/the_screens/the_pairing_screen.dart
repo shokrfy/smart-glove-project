@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:the_graduation_project/services/ble_service.dart';
-import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:logger/logger.dart';
 import 'dart:io' show Platform;
+import 'dart:convert';
+
+final Logger _logger = Logger(
+  printer: PrettyPrinter(
+    methodCount: 0,
+    errorMethodCount: 0,
+    lineLength: 0,
+    colors: false,
+    printEmojis: false,
+    dateTimeFormat: DateTimeFormat.none,
+  ),
+);
 
 class PairingScreen extends StatefulWidget {
   static const String theRouteName = 'pairing';
@@ -14,7 +26,6 @@ class PairingScreen extends StatefulWidget {
 }
 
 class _PairingScreenState extends State<PairingScreen> {
-  final Logger _logger = Logger();
   final BleService bleService = BleService();
   bool _isPairing = false;
   bool _isConnected = false;
@@ -29,24 +40,15 @@ class _PairingScreenState extends State<PairingScreen> {
       ];
 
       bool allGranted = true;
-
       for (final permission in permissions) {
         final status = await permission.status;
-        _logger.d("🐛 Permission check: $permission -> $status");
-
         if (!status.isGranted) {
           final result = await permission.request();
-          _logger.d("📛 Permission request: $permission -> $result");
-
-          if (!result.isGranted) {
-            allGranted = false;
-          }
+          if (!result.isGranted) allGranted = false;
         }
       }
-
       return allGranted;
     }
-
     return true;
   }
 
@@ -62,11 +64,17 @@ class _PairingScreenState extends State<PairingScreen> {
 
     if (!mounted) return;
     setState(() => _isPairing = true);
+    _logger.i('📡 Starting scan for ESP (MAC: 08:D1:F9:CC:16:3E)');
 
     bleService.startScan((device) async {
+      final id = device.remoteId.str;
+      _logger.i('📡 Device found: $id, connecting...');
       await bleService.connectToDevice(device);
+      _logger.i('🎉 Connected to device: $id');
+
       await bleService.listenToData((data) {
-        _logger.i("📨 Data from ESP: $data");
+        final message = utf8.decode(data);
+        _logger.i('📨 Data from ESP: $message');
       });
 
       if (!mounted) return;
@@ -81,7 +89,6 @@ class _PairingScreenState extends State<PairingScreen> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('SignGlove', style: TextStyle(color: Colors.white)),
