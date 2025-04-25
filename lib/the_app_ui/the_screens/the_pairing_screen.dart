@@ -4,6 +4,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:logger/logger.dart';
 import 'dart:io' show Platform;
 import 'dart:convert';
+import 'package:the_graduation_project/the_app_ui/the_screens/the_home_screen.dart';
 
 final Logger _logger = Logger(
   printer: PrettyPrinter(
@@ -64,7 +65,7 @@ class _PairingScreenState extends State<PairingScreen> {
 
     if (!mounted) return;
     setState(() => _isPairing = true);
-    _logger.i('📡 Starting scan for ESP (MAC: 08:D1:F9:CC:16:3E)');
+    _logger.i('📡 Starting scan for ESP (MAC: ${BleService.targetDeviceId})');
 
     bleService.startScan((device) async {
       final id = device.remoteId.str;
@@ -81,6 +82,11 @@ class _PairingScreenState extends State<PairingScreen> {
       setState(() {
         _isPairing = false;
         _isConnected = true;
+      });
+
+      Future.delayed(const Duration(seconds: 4), () {
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, HomeScreen.theRouteName);
       });
     });
   }
@@ -101,7 +107,7 @@ class _PairingScreenState extends State<PairingScreen> {
               child: Text(
                 'Pair Gloves',
                 style: TextStyle(
-                  color: Colors.black,
+                  color: Colors.white,
                   fontWeight: FontWeight.bold,
                 ),
               ),
