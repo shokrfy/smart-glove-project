@@ -91,7 +91,7 @@ class _PairingScreenState extends State<PairingScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('SignGlove', style: TextStyle(color: Colors.white)),
+        title: const Text('Smart Glove', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
         elevation: 2,
         actions: const [

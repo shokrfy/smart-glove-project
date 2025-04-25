@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:the_graduation_project/the_app_ui/the_screens/the_pairing_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
-  static const String theRouteName = 'settings';
+  static const String theRouteName = 'Smart Glove';
 
   const SettingsScreen({super.key});
 
