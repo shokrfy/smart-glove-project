@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- اسم التطبيق اللي هيظهر تحت الأيقونة -->
+    <string name="app_name">Smart Glove</string>
+</resources>

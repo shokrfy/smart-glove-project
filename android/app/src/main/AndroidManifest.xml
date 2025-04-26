@@ -12,7 +12,7 @@
 
 
     <application
-        android:label="the_graduation_project"
+        android:label="@string/app_name"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class HelpScreen extends StatefulWidget {
-  static const String theRouteName = 'help';
+  static const String theRouteName = '/help';
 
   const HelpScreen({super.key});
 
@@ -16,7 +16,6 @@ class _HelpScreenState extends State<HelpScreen> {
   final _emailCtrl = TextEditingController();
   final _messageCtrl = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-
   bool _sending = false;
 
   Future<void> _sendEmail() async {
@@ -24,29 +23,27 @@ class _HelpScreenState extends State<HelpScreen> {
 
     setState(() => _sending = true);
 
-    const serviceId = 'service_5mdv0qb';
-    const templateId = 'template_cjco797';
-    const publicKey = '5h80DcOGSv6swQ6nR';
-    const privateKey = 'yOcUECYEEB24x1krINKf-';
+    const serviceId = 'service_64qz4vj';
+    const templateId = 'template_d6v72qr';
+    const userId = 'aBbRIZGewIQxt0CBz';
 
     final url = Uri.parse('https://api.emailjs.com/api/v1.0/email/send');
-    final body = {
+    final body = json.encode({
       'service_id': serviceId,
       'template_id': templateId,
-      'user_id': publicKey,
-      'private_key': privateKey,
+      'user_id': userId,
       'template_params': {
         'name': _nameCtrl.text.trim(),
         'email': _emailCtrl.text.trim(),
         'message': _messageCtrl.text.trim(),
       },
-    };
+    });
 
     try {
       final res = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(body),
+        body: body,
       );
 
       if (mounted) {
@@ -58,14 +55,16 @@ class _HelpScreenState extends State<HelpScreen> {
           _emailCtrl.clear();
           _messageCtrl.clear();
         } else {
-          throw Exception(res.body);
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Failed to send message')));
         }
       }
-    } catch (e) {
+    } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Failed to send: $e')));
+        ).showSnackBar(const SnackBar(content: Text('Failed to send message')));
       }
     } finally {
       if (mounted) setState(() => _sending = false);
@@ -95,21 +94,21 @@ class _HelpScreenState extends State<HelpScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: w * .05),
+          padding: EdgeInsets.symmetric(horizontal: w * 0.05),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: h * .02),
+                SizedBox(height: h * 0.02),
                 Text(
                   'Contact Us',
                   style: TextStyle(
-                    fontSize: w * .06,
+                    fontSize: w * 0.06,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                SizedBox(height: h * .02),
+                SizedBox(height: h * 0.02),
                 TextFormField(
                   controller: _nameCtrl,
                   decoration: const InputDecoration(
@@ -122,7 +121,7 @@ class _HelpScreenState extends State<HelpScreen> {
                               ? 'Name is required'
                               : null,
                 ),
-                SizedBox(height: h * .02),
+                SizedBox(height: h * 0.02),
                 TextFormField(
                   controller: _emailCtrl,
                   decoration: const InputDecoration(
@@ -140,7 +139,7 @@ class _HelpScreenState extends State<HelpScreen> {
                         : 'Enter a valid email';
                   },
                 ),
-                SizedBox(height: h * .02),
+                SizedBox(height: h * 0.02),
                 TextFormField(
                   controller: _messageCtrl,
                   decoration: const InputDecoration(
@@ -154,10 +153,10 @@ class _HelpScreenState extends State<HelpScreen> {
                               ? 'Message can\'t be empty'
                               : null,
                 ),
-                SizedBox(height: h * .02),
+                SizedBox(height: h * 0.02),
                 SizedBox(
                   width: double.infinity,
-                  height: h * .06,
+                  height: h * 0.06,
                   child: ElevatedButton(
                     onPressed: _sending ? null : _sendEmail,
                     style: ElevatedButton.styleFrom(
@@ -165,14 +164,16 @@ class _HelpScreenState extends State<HelpScreen> {
                     ),
                     child:
                         _sending
-                            ? const CircularProgressIndicator()
+                            ? const CircularProgressIndicator(
+                              color: Colors.white,
+                            )
                             : const Text(
                               'Submit',
                               style: TextStyle(color: Colors.white),
                             ),
                   ),
                 ),
-                SizedBox(height: h * .05),
+                SizedBox(height: h * 0.05),
               ],
             ),
           ),
