@@ -57,31 +57,30 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
-          title:
-              selectedDrawerView == DrawerItem.home
-                  ? const Text(
-                    'Smart Glove',
-                    style: TextStyle(color: Colors.white),
-                  )
-                  : selectedDrawerView == DrawerItem.gestureCustomize
-                  ? const Text(
-                    'Gesture Customization',
-                    style: TextStyle(color: Colors.white),
-                  )
-                  : selectedDrawerView == DrawerItem.help
-                  ? const Text(
-                    'Help & Support',
-                    style: TextStyle(color: Colors.white),
-                  )
-                  : selectedDrawerView == DrawerItem.settings
-                  ? const Text(
-                    'Settings',
-                    style: TextStyle(color: Colors.white),
-                  )
-                  : const Text(
-                    'User Account',
-                    style: TextStyle(color: Colors.white),
-                  ),
+          title: selectedDrawerView == DrawerItem.home
+              ? const Text(
+            'Smart Glove',
+            style: TextStyle(color: Colors.white),
+          )
+              : selectedDrawerView == DrawerItem.gestureCustomize
+              ? const Text(
+            'Gesture Customization',
+            style: TextStyle(color: Colors.white),
+          )
+              : selectedDrawerView == DrawerItem.help
+              ? const Text(
+            'Help & Support',
+            style: TextStyle(color: Colors.white),
+          )
+              : selectedDrawerView == DrawerItem.settings
+              ? const Text(
+            'Settings',
+            style: TextStyle(color: Colors.white),
+          )
+              : const Text(
+            'User Account',
+            style: TextStyle(color: Colors.white),
+          ),
           backgroundColor: Colors.black,
           iconTheme: const IconThemeData(color: Colors.white),
         ),
@@ -89,11 +88,16 @@ class _HomeScreenState extends State<HomeScreen> {
           child: ListView(
             padding: EdgeInsets.zero,
             children: [
-              DrawerHeader(
-                decoration: const BoxDecoration(color: Colors.black),
-                child: const Text(
-                  'Smart Glove',
-                  style: TextStyle(color: Colors.white, fontSize: 24),
+              Container(
+                color: Colors.black,
+                height: 100, // Adjusted height
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: const Align(
+                  alignment: Alignment.bottomLeft,
+                  child: Text(
+                    'Smart Glove',
+                    style: TextStyle(color: Colors.white, fontSize: 24),
+                  ),
                 ),
               ),
               ListTile(
@@ -109,7 +113,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 title: const Text('Gesture Customization'),
                 onTap: () {
                   setState(
-                    () => selectedDrawerView = DrawerItem.gestureCustomize,
+                        () => selectedDrawerView = DrawerItem.gestureCustomize,
                   );
                   Navigator.pop(context);
                 },
@@ -172,9 +176,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildGestureTranslationSection(
-    double screenHeight,
-    double screenWidth,
-  ) {
+      double screenHeight,
+      double screenWidth,
+      ) {
     return Card(
       child: Padding(
         padding: EdgeInsets.all(screenWidth * 0.04),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:the_graduation_project/the_app_ui/the_screens/the_home_screen.dart';
+import 'package:the_graduation_project/the_app_ui/the_screens/welcome_screen.dart';
 import '../../the_app_utilizations/the_app_assets.dart';
 
 class TheSplashScreen extends StatelessWidget {
@@ -10,9 +10,9 @@ class TheSplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 3), () {
       if (!context.mounted) return;
-      Navigator.pushReplacementNamed(context, HomeScreen.theRouteName);
+      Navigator.pushReplacementNamed(context, WelcomeScreen.routeName);
     });
 
     return Scaffold(

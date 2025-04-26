@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.blue),
 
       // تظهر أولاً شاشة الترحيب
-      initialRoute: WelcomeScreen.routeName,
+      initialRoute:TheSplashScreen.theRoutName,
 
       routes: {
         // شاشة الترحيب

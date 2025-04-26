@@ -17,7 +17,10 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('User Account', style: TextStyle(color: Colors.white),),
+        title: Text(
+          'User Account',
+          style: TextStyle(color: Colors.white),
+        ),
         backgroundColor: Colors.black,
       ),
       body: SingleChildScrollView(
@@ -86,40 +89,6 @@ class _UserAccountScreenState extends State<UserAccountScreen> {
                 ),
                 child: Text(
                   'Save Email',
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.045,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              SizedBox(height: screenHeight * 0.05),
-              Text(
-                'Give Feedback',
-                style: TextStyle(
-                  fontSize: screenWidth * 0.06,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-              ),
-              SizedBox(height: screenHeight * 0.02),
-              TextField(
-                decoration: InputDecoration(
-                  labelText: 'Share your thoughts...',
-                  border: OutlineInputBorder(),
-                ),
-                maxLines: 3,
-              ),
-              SizedBox(height: screenHeight * 0.02),
-              ElevatedButton(
-                onPressed: () {
-                  // Handle Submit Feedback button press
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  fixedSize: Size(screenWidth * 0.8, screenHeight * 0.06),
-                ),
-                child: Text(
-                  'Submit Feedback',
                   style: TextStyle(
                     fontSize: screenWidth * 0.045,
                     color: Colors.white,
