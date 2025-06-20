@@ -4,7 +4,7 @@ import 'package:logger/logger.dart';
 final Logger _logger = Logger();
 
 class BleService {
-  static const String targetDeviceId = '08:D1:F9:CC:16:3E';
+  static const String targetDeviceId = 'A0:DD:6C:0F:EF:24';
   static final Guid serviceUuid =
       Guid.parse('4fafc201-1fb5-459e-8fcc-c5c9c331914b')!;
   static final Guid charUuid =
@@ -16,19 +16,20 @@ class BleService {
   void startScan(Function(BluetoothDevice) onDeviceFound) {
     _logger.i('📡 Starting scan for target MAC: $targetDeviceId');
     FlutterBluePlus.startScan(
-      withRemoteIds: [targetDeviceId],
+      // Removed MAC filtering
+      // withRemoteIds: [targetDeviceId],
       timeout: const Duration(seconds: 5),
       androidScanMode: AndroidScanMode.balanced,
     );
 
     FlutterBluePlus.scanResults.listen((results) {
       for (var r in results) {
-        final remoteId = r.device.remoteId.str;
-        _logger.i('🔍 Found device: $remoteId (RSSI: ${r.rssi})');
-        if (!_isConnected && remoteId == targetDeviceId) {
+        final platformName = r.device.platformName;
+        _logger.i('🔍 Found device: $platformName (RSSI: ${r.rssi})');
+        if (!_isConnected && platformName == 'ESP32_Glove') {
           _isConnected = true;
           FlutterBluePlus.stopScan();
-          _logger.i('✅ Target device found: $remoteId');
+          _logger.i('✅ Target device found: $platformName');
           onDeviceFound(r.device);
           break;
         }
@@ -86,7 +87,7 @@ class BleService {
 
   Future<void> disconnect() async {
     if (connectedDevice != null) {
-      final id = connectedDevice!.remoteId.str;
+      final id = connectedDevice!.platformName;
       _logger.i('🔌 Disconnecting from: $id');
       await connectedDevice!.disconnect();
       _isConnected = false;
