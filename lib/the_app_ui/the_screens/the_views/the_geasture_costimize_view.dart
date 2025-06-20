@@ -10,6 +10,16 @@ class GestureCustomizeScreen extends StatefulWidget {
 }
 
 class _GestureCustomizeScreenState extends State<GestureCustomizeScreen> {
+  final List<String> labels = [
+    'Hello',
+    'Thank you',
+    'Yes',
+    'No',
+    'I need help',
+  ];
+  String currentLabel = 'Hello';
+  bool recording = false;
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -17,7 +27,7 @@ class _GestureCustomizeScreenState extends State<GestureCustomizeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign2Speak',style: TextStyle(color: Colors.white),),
+        title: Text('Sign2Speak', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
       ),
       body: Padding(
@@ -25,33 +35,59 @@ class _GestureCustomizeScreenState extends State<GestureCustomizeScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: screenHeight * 0.02),
+            // Main title
+            Text(
+              'Sign2Speak',
+              style: TextStyle(
+                fontSize: screenWidth * 0.08,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+
+            SizedBox(height: screenHeight * 0.04),
+
+            // Add new gesture section
             Text(
               'Add New Gesture',
               style: TextStyle(
                 fontSize: screenWidth * 0.06,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
               ),
             ),
+
             SizedBox(height: screenHeight * 0.02),
-            ElevatedButton(
-              onPressed: () {
-                // Todo : add the record gesture logic
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.black,
-                fixedSize: Size(screenWidth * 0.8, screenHeight * 0.06),
-              ),
-              child: Text(
-                'Record Gesture',
-                style: TextStyle(
-                  fontSize: screenWidth * 0.045,
-                  color: Colors.white,
+
+            // Recording button
+            Center(
+              child: ElevatedButton(
+                onPressed: () {
+                  setState(() {
+                    recording = !recording;
+                  });
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        recording
+                            ? '🔴 Recording started for: $currentLabel'
+                            : '🟢 Recording stopped',
+                      ),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(screenWidth * 0.8, screenHeight * 0.06),
+                  shape: StadiumBorder(),
+                ),
+                child: Text(
+                  recording ? 'Stop Recording' : 'Record Gesture',
+                  style: TextStyle(fontSize: screenWidth * 0.045),
                 ),
               ),
             ),
-            SizedBox(height: screenHeight * 0.05),
+
+            SizedBox(height: screenHeight * 0.04),
+
+            // Recorded gestures section
             Text(
               'Your Gestures',
               style: TextStyle(
@@ -60,82 +96,59 @@ class _GestureCustomizeScreenState extends State<GestureCustomizeScreen> {
                 color: Colors.black,
               ),
             ),
+
             SizedBox(height: screenHeight * 0.02),
+
+            // This is the one and only dropdown left:
+            Text(
+              'Select Label for Gesture:',
+              style: TextStyle(
+                fontSize: screenWidth * 0.045,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            SizedBox(height: screenHeight * 0.01),
+            DropdownButton<String>(
+              value: currentLabel,
+              items:
+                  labels.map((label) {
+                    return DropdownMenuItem(
+                      value: label,
+                      child: Text(
+                        label,
+                        style: TextStyle(fontSize: screenWidth * 0.045),
+                      ),
+                    );
+                  }).toList(),
+              onChanged: (value) {
+                setState(() {
+                  currentLabel = value!;
+                });
+              },
+            ),
+
+            SizedBox(height: screenHeight * 0.02),
+
+            // Gesture list & delete icons (left intact)
             Expanded(
               child: ListView(
                 children: [
-                  // Todo : display the list of gestures logic
-                  _buildGestureItem(
-                    screenWidth,
-                    screenHeight,
-                    'Hello Gesture',
-                    'Wave hand to say hello',
+                  // Example of a saved gesture card:
+                  Card(
+                    margin: EdgeInsets.only(bottom: screenHeight * 0.02),
+                    child: ListTile(
+                      title: Text('Gesture: $currentLabel'),
+                      trailing: IconButton(
+                        icon: Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          // Todo: add delete logic
+                        },
+                      ),
+                    ),
                   ),
-                  _buildGestureItem(
-                    screenWidth,
-                    screenHeight,
-                    'Thank You Gesture',
-                    'Bring hand to chest',
-                  ),
-                  _buildGestureItem(
-                    screenWidth,
-                    screenHeight,
-                    'Goodbye Gesture',
-                    'Wave hand to say goodbye',
-                  ),
+                  // ...more cards
                 ],
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildGestureItem(
-      double screenWidth, double screenHeight, String title, String description) {
-    return Card(
-      margin: EdgeInsets.symmetric(vertical: screenHeight * 0.01),
-      child: Padding(
-        padding: EdgeInsets.all(screenWidth * 0.04),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.05,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: screenHeight * 0.01),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.04,
-                    color: Colors.grey[700],
-                  ),
-                ),
-              ],
-            ),
-            Row(
-              children: [
-                IconButton(
-                  icon: Icon(Icons.edit, color: Colors.black),
-                  onPressed: () {
-                    // Todo : add the edit gesture logic
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    // Todo : add the delete gesture logic
-                  },
-                ),
-              ],
             ),
           ],
         ),
