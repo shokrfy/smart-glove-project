@@ -1,5 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:the_graduation_project/services/ai_service.dart'; // NEW
 import 'package:the_graduation_project/services/ble_service.dart';
 import 'package:the_graduation_project/services/speech_to_text_service.dart';
 import 'package:the_graduation_project/services/text_to_speech_service.dart';
@@ -24,14 +24,24 @@ class _HomeScreenState extends State<HomeScreen> {
   final BleService _bleService = BleService();
 
   bool _isListening = false;
-  String _recognizedText = "Tap the mic and speak to convert speech into text";
-  String _translatedText = "Translated Text";
+  String _recognizedText = 'Tap the mic and speak to convert speech into text';
+  String _translatedText = 'Translated Text';
 
   DrawerItem selectedDrawerView = DrawerItem.home;
 
   @override
   void initState() {
     super.initState();
+
+    // 1) load your AI model right away
+    AIService().loadModel();
+
+    // 2) register for AI predictions
+    _bleService.setOnGestureReceivedCallback((gesture) {
+      setState(() => _translatedText = gesture);
+    });
+
+    // 3) start BLE scan/connect
     _initBle();
   }
 
@@ -39,18 +49,15 @@ class _HomeScreenState extends State<HomeScreen> {
     _bleService.startScan((device) async {
       await _bleService.connectToDevice(device);
       await _bleService.listenToData((data) {
-        final message = utf8.decode(data);
-        setState(() {
-          _translatedText = message;
-        });
+        // raw data: you can still inspect or log if you want
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final screenWidth = MediaQuery.of(context).size.width;
+    final h = MediaQuery.of(context).size.height;
+    final w = MediaQuery.of(context).size.width;
 
     return Container(
       decoration: const BoxDecoration(color: Colors.white),
@@ -58,29 +65,18 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           title: selectedDrawerView == DrawerItem.home
-              ? const Text(
-            'Smart Glove',
-            style: TextStyle(color: Colors.white),
-          )
+              ? const Text('Smart Glove', style: TextStyle(color: Colors.white))
               : selectedDrawerView == DrawerItem.gestureCustomize
-              ? const Text(
-            'Gesture Customization',
-            style: TextStyle(color: Colors.white),
-          )
-              : selectedDrawerView == DrawerItem.help
-              ? const Text(
-            'Help & Support',
-            style: TextStyle(color: Colors.white),
-          )
-              : selectedDrawerView == DrawerItem.settings
-              ? const Text(
-            'Settings',
-            style: TextStyle(color: Colors.white),
-          )
-              : const Text(
-            'User Account',
-            style: TextStyle(color: Colors.white),
-          ),
+                  ? const Text('Gesture Customization',
+                      style: TextStyle(color: Colors.white))
+                  : selectedDrawerView == DrawerItem.help
+                      ? const Text('Help & Support',
+                          style: TextStyle(color: Colors.white))
+                      : selectedDrawerView == DrawerItem.settings
+                          ? const Text('Settings',
+                              style: TextStyle(color: Colors.white))
+                          : const Text('User Account',
+                              style: TextStyle(color: Colors.white)),
           backgroundColor: Colors.black,
           iconTheme: const IconThemeData(color: Colors.white),
         ),
@@ -90,58 +86,24 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Container(
                 color: Colors.black,
-                height: 100, // Adjusted height
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                height: 100,
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: const Align(
                   alignment: Alignment.bottomLeft,
-                  child: Text(
-                    'Smart Glove',
-                    style: TextStyle(color: Colors.white, fontSize: 24),
-                  ),
+                  child: Text('Smart Glove',
+                      style: TextStyle(color: Colors.white, fontSize: 24)),
                 ),
               ),
-              ListTile(
-                leading: const Icon(Icons.home),
-                title: const Text('Home'),
-                onTap: () {
-                  setState(() => selectedDrawerView = DrawerItem.home);
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.back_hand_outlined),
-                title: const Text('Gesture Customization'),
-                onTap: () {
-                  setState(
-                        () => selectedDrawerView = DrawerItem.gestureCustomize,
-                  );
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.help),
-                title: const Text('Help & Support'),
-                onTap: () {
-                  setState(() => selectedDrawerView = DrawerItem.help);
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.settings),
-                title: const Text('Settings'),
-                onTap: () {
-                  setState(() => selectedDrawerView = DrawerItem.settings);
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.account_circle),
-                title: const Text('User Account'),
-                onTap: () {
-                  setState(() => selectedDrawerView = DrawerItem.userAccount);
-                  Navigator.pop(context);
-                },
-              ),
+              for (var item in DrawerItem.values)
+                ListTile(
+                  leading: _drawerIcon(item),
+                  title: Text(_drawerLabel(item)),
+                  onTap: () {
+                    setState(() => selectedDrawerView = item);
+                    Navigator.pop(context);
+                  },
+                ),
             ],
           ),
         ),
@@ -149,12 +111,12 @@ class _HomeScreenState extends State<HomeScreen> {
           builder: (context) {
             if (selectedDrawerView == DrawerItem.home) {
               return Padding(
-                padding: EdgeInsets.all(screenWidth * 0.04),
+                padding: EdgeInsets.all(w * 0.04),
                 child: Column(
                   children: [
-                    _buildGestureTranslationSection(screenHeight, screenWidth),
-                    SizedBox(height: screenHeight * 0.02),
-                    _buildSpeechToTextSection(screenHeight, screenWidth),
+                    _buildGestureTranslationSection(h, w),
+                    SizedBox(height: h * 0.02),
+                    _buildSpeechToTextSection(h, w),
                   ],
                 ),
               );
@@ -164,10 +126,8 @@ class _HomeScreenState extends State<HomeScreen> {
               return const HelpScreen();
             } else if (selectedDrawerView == DrawerItem.settings) {
               return const SettingsScreen();
-            } else if (selectedDrawerView == DrawerItem.userAccount) {
-              return const UserAccountScreen();
             } else {
-              return const Center(child: Text('Unknown View'));
+              return const UserAccountScreen();
             }
           },
         ),
@@ -175,48 +135,36 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildGestureTranslationSection(
-      double screenHeight,
-      double screenWidth,
-      ) {
+  Widget _buildGestureTranslationSection(double h, double w) {
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(screenWidth * 0.04),
+        padding: EdgeInsets.all(w * 0.04),
         child: Column(
           children: [
             Row(
               children: [
-                Icon(Icons.pan_tool, size: screenWidth * 0.1),
-                SizedBox(width: screenWidth * 0.02),
-                Text(
-                  'Gesture Translation',
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.05,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Icon(Icons.pan_tool, size: w * 0.1),
+                SizedBox(width: w * 0.02),
+                Text('Gesture Translation',
+                    style: TextStyle(
+                        fontSize: w * 0.05, fontWeight: FontWeight.bold)),
               ],
             ),
-            SizedBox(height: screenHeight * 0.02),
+            SizedBox(height: h * 0.02),
             Container(
-              height: screenHeight * 0.15,
+              height: h * 0.15,
               color: Colors.grey[200],
               child: Center(
-                child: Text(
-                  _translatedText,
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.05,
-                    color: Colors.black,
-                  ),
-                ),
+                child: Text(_translatedText,
+                    style: TextStyle(fontSize: w * 0.05, color: Colors.black)),
               ),
             ),
-            SizedBox(height: screenHeight * 0.02),
+            SizedBox(height: h * 0.02),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
-                textStyle: TextStyle(fontSize: screenWidth * 0.045),
+                textStyle: TextStyle(fontSize: w * 0.045),
               ),
               onPressed: () async {
                 await _ttsService.speak(_translatedText);
@@ -229,45 +177,36 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSpeechToTextSection(double screenHeight, double screenWidth) {
+  Widget _buildSpeechToTextSection(double h, double w) {
     return Card(
       child: Padding(
-        padding: EdgeInsets.all(screenWidth * 0.04),
+        padding: EdgeInsets.all(w * 0.04),
         child: Column(
           children: [
             Row(
               children: [
-                Icon(Icons.mic, size: screenWidth * 0.1),
-                SizedBox(width: screenWidth * 0.02),
-                Text(
-                  'Speech-to-Text',
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.05,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                Icon(Icons.mic, size: w * 0.1),
+                SizedBox(width: w * 0.02),
+                Text('Speech-to-Text',
+                    style: TextStyle(
+                        fontSize: w * 0.05, fontWeight: FontWeight.bold)),
               ],
             ),
-            SizedBox(height: screenHeight * 0.02),
+            SizedBox(height: h * 0.02),
             Container(
-              height: screenHeight * 0.15,
+              height: h * 0.15,
               color: Colors.grey[200],
               child: Center(
-                child: Text(
-                  _recognizedText,
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.05,
-                    color: Colors.black,
-                  ),
-                ),
+                child: Text(_recognizedText,
+                    style: TextStyle(fontSize: w * 0.05, color: Colors.black)),
               ),
             ),
-            SizedBox(height: screenHeight * 0.02),
+            SizedBox(height: h * 0.02),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
-                textStyle: TextStyle(fontSize: screenWidth * 0.045),
+                textStyle: TextStyle(fontSize: w * 0.045),
               ),
               onPressed: _handleSpeak,
               child: Text(_isListening ? 'Stop' : 'Speak'),
@@ -284,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() => _isListening = false);
     } else {
       setState(() {
-        _recognizedText = "Listening...";
+        _recognizedText = 'Listening...';
         _isListening = true;
       });
       await _speechService.startListening((resultText) {
@@ -293,6 +232,36 @@ class _HomeScreenState extends State<HomeScreen> {
           _isListening = false;
         });
       });
+    }
+  }
+
+  Icon _drawerIcon(DrawerItem item) {
+    switch (item) {
+      case DrawerItem.home:
+        return const Icon(Icons.home);
+      case DrawerItem.gestureCustomize:
+        return const Icon(Icons.back_hand_outlined);
+      case DrawerItem.help:
+        return const Icon(Icons.help);
+      case DrawerItem.settings:
+        return const Icon(Icons.settings);
+      case DrawerItem.userAccount:
+        return const Icon(Icons.account_circle);
+    }
+  }
+
+  String _drawerLabel(DrawerItem item) {
+    switch (item) {
+      case DrawerItem.home:
+        return 'Home';
+      case DrawerItem.gestureCustomize:
+        return 'Gesture Customization';
+      case DrawerItem.help:
+        return 'Help & Support';
+      case DrawerItem.settings:
+        return 'Settings';
+      case DrawerItem.userAccount:
+        return 'User Account';
     }
   }
 }

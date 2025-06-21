@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(primarySwatch: Colors.blue),
 
       // تظهر أولاً شاشة الترحيب
-      initialRoute:TheSplashScreen.theRoutName,
+      initialRoute: TheSplashScreen.theRoutName,
 
       routes: {
         // شاشة الترحيب
@@ -42,8 +42,8 @@ class MyApp extends StatelessWidget {
         LoginScreen.theRouteName: (context) => const LoginScreen(),
         SignInScreen.theRouteName: (context) => const SignInScreen(),
         // باقي الشاشات
-        GestureCustomizeScreen.theRouteName:
-            (context) => const GestureCustomizeScreen(),
+        GestureCustomizeScreen.theRouteName: (context) =>
+            const GestureCustomizeScreen(),
         HelpScreen.theRouteName: (context) => const HelpScreen(),
         SettingsScreen.theRouteName: (context) => const SettingsScreen(),
         UserAccountScreen.theRouteName: (context) => const UserAccountScreen(),
