@@ -7,57 +7,62 @@ class AIService {
   factory AIService() => _instance;
   AIService._internal();
 
-  final Logger _logger = Logger();
+  final _log = Logger();
   late Interpreter _interpreter;
+  late int _numOutputs;
   final List<String> _labels = [];
   bool _isLoaded = false;
 
   Future<void> loadModel() async {
     try {
-      _logger.i('📦 Loading TFLite model...');
-      final options = InterpreterOptions()..threads = 2;
-      _interpreter =
-          await Interpreter.fromAsset('gesture_model.tflite', options: options);
-      final labelRaw = await rootBundle.loadString('assets/gesture_labels.txt');
-      _labels.addAll(
-          labelRaw.split('\n').map((e) => e.trim()).where((e) => e.isNotEmpty));
+      _log.i('📦 Loading TFLite model…');
+
+      _interpreter = await Interpreter.fromAsset(
+        'assets/gesture_model.tflite',
+        options: InterpreterOptions()..threads = 2,
+      );
+      _numOutputs = _interpreter.getOutputTensor(0).shape[1];
+
+      final raw = await rootBundle.loadString('assets/gesture_labels.txt');
+      _labels
+        ..clear()
+        ..addAll(
+          raw.split('\n').map((e) => e.trim()).where((e) => e.isNotEmpty),
+        );
+
+      if (_labels.length != _numOutputs) {
+        _log.w(
+          '⚠️ labels (${_labels.length}) ≠ model outputs ($_numOutputs). '
+          'Using indexes instead of names where necessary.',
+        );
+      }
+
       _isLoaded = true;
-      _logger.i('✅ Model loaded with ${_labels.length} labels');
+      _log.i('✅ Model ready ($_numOutputs classes)');
     } catch (e) {
-      _logger.e('❌ Failed to load model: $e');
+      _log.e('❌ loadModel failed: $e');
     }
   }
 
+  /// [input] يجب أن يحتوى 12 قيمة بالترتيب (Flex1..Temp)
   String? predict(List<double> input) {
-    if (!_isLoaded) {
-      _logger.w('⚠️ Model not loaded');
-      return null;
-    }
-
+    if (!_isLoaded) return null;
     if (input.length != 12) {
-      _logger.w('⚠️ Input must contain 12 values, but got ${input.length}');
+      _log.w('⚠️ Expected 12 inputs, got ${input.length}');
       return null;
     }
 
-    final inputTensor = [input];
-    final outputTensor = List<List<double>>.generate(
-      1,
-      (_) => List<double>.filled(_labels.length, 0),
-    );
+    final output = List.generate(1, (_) => List.filled(_numOutputs, 0.0));
+    _interpreter.run([input], output);
 
-    try {
-      _interpreter.run(inputTensor, outputTensor);
-    } catch (e) {
-      _logger.e('❌ Inference failed: $e');
-      return null;
-    }
+    final probs = output[0];
+    final max = probs.reduce((a, b) => a > b ? a : b);
+    final idx = probs.indexOf(max);
 
-    final row = outputTensor[0];
-    final maxVal = row.reduce((a, b) => a > b ? a : b);
-    final idx = row.indexOf(maxVal);
+    final label = idx < _labels.length ? _labels[idx] : 'Gesture_$idx';
 
-    _logger.i('🤖 Prediction: ${_labels[idx]} (Confidence: $maxVal)');
-    return _labels[idx];
+    _log.i('🤖 $label (${max.toStringAsFixed(2)})');
+    return label;
   }
 
   bool get isModelLoaded => _isLoaded;
