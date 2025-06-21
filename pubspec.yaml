@@ -21,6 +21,8 @@ dependencies:
   http: ^1.1.0
   cupertino_icons: ^1.0.8
   path_provider: ^2.1.5
+  tflite_flutter: ^0.11.0
+  tflite_flutter_helper: ^0.4.0
 
 dev_dependencies:
   flutter_test:
@@ -34,6 +36,8 @@ flutter:
     - lib/the_assets/the_images/auth_image.png
     - lib/the_assets/the_images/Sign2Speak Splash Screen.png
     - lib/the_assets/the_images/Icon sign language.png
+    - assets/gesture_model.tflite
+    - assets/gesture_labels.txt
 
 flutter_icons:
   android: true
