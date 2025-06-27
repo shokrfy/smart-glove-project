@@ -13,6 +13,9 @@ class AIService {
   final List<String> _labels = [];
   bool _isLoaded = false;
 
+  /// عدد القيم المطلوبة للموديل (Flex1-Flex5 + AccX-AccZ + GyroX-GyroZ) = 11
+  static const int _inputSize = 11;
+
   Future<void> loadModel() async {
     try {
       _log.i('📦 Loading TFLite model…');
@@ -44,14 +47,16 @@ class AIService {
     }
   }
 
-  /// [input] يجب أن يحتوى 12 قيمة بالترتيب (Flex1..Temp)
+  /// [input] يجب أن يحتوى **11** قيمة بالترتيب:
+  /// Flex1, Flex2, Flex3, Flex4, Flex5, AccX, AccY, AccZ, GyroX, GyroY, GyroZ
   String? predict(List<double> input) {
     if (!_isLoaded) return null;
-    if (input.length != 12) {
-      _log.w('⚠️ Expected 12 inputs, got ${input.length}');
+    if (input.length != _inputSize) {
+      _log.w('⚠️ Expected $_inputSize inputs, got ${input.length}');
       return null;
     }
 
+    // الشكل المطلوب للموديل: [1, 11]
     final output = List.generate(1, (_) => List.filled(_numOutputs, 0.0));
     _interpreter.run([input], output);
 
@@ -66,4 +71,39 @@ class AIService {
   }
 
   bool get isModelLoaded => _isLoaded;
+}
+
+/// Apply StandardScaler (mean/std) exactly like Python training
+List<double> applyStandardScaler(List<double> input) {
+  const means = [
+    3619.263499,
+    3525.562635,
+    3781.760259,
+    3558.464363,
+    4095.000000,
+    12631.641469,
+    4355.637149,
+    3.330454,
+    -331.132829,
+    27.801296,
+    -439.443844,
+  ];
+  const stds = [
+    137.527597,
+    295.856223,
+    443.162831,
+    248.358456,
+    1.000000,
+    4404.401685,
+    7630.018912,
+    6435.828179,
+    8879.383146,
+    6977.595363,
+    7666.527167,
+  ];
+
+  return List<double>.generate(
+    input.length,
+    (i) => (input[i] - means[i]) / stds[i],
+  );
 }

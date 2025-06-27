@@ -23,7 +23,7 @@ class BleService {
   bool _modelLoadingInitiated = false;
 
   // مجمّع الإطار (12 قيمة)
-  List<double?> _frame = List.filled(12, null);
+  List<double?> _frame = List.filled(11, null);
   static const Map<String, int> _keyIndex = {
     'Flex1': 0,
     'Flex2': 1,
@@ -36,8 +36,7 @@ class BleService {
     'GyroX': 8,
     'GyroY': 9,
     'GyroZ': 10,
-    'Temp': 11,
-  };
+      };
   // ────────────────────────────────────────────────────────────
 
   /// مسح ضوئى عن ESP32_Glove
@@ -103,9 +102,9 @@ class BleService {
     _logger.d('📥 ${kv[0]} → ${_frame[idx]}');
 
     if (_frame.every((v) => v != null)) {
-      final gesture = _aiService.predict(_frame.cast<double>());
+      final gesture = _aiService.predict(applyStandardScaler(_frame.take(11).cast<double>().toList()));
       if (gesture != null) onGestureReceived?.call(gesture);
-      _frame = List.filled(12, null); // إطار جديد
+      _frame = List.filled(11, null); // إطار جديد
     }
   }
 }
